@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import mimetypes
 mimetypes.add_type("text/css", ".css", True)
+mimetypes.add_type("text/html", ".css", True)
+mimetypes.add_type("text/html", ".html", True)
 
 from pathlib import Path
 
