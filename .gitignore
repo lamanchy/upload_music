@@ -1,2 +1,5 @@
 .idea
 venv
+upload_music/local_settings.py
+records
+db.sqlite3

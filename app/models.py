@@ -1,3 +1,12 @@
-from django.db import models
+from django.db.models import Model, CharField, FileField
 
-# Create your models here.
+
+class UploadedSong(Model):
+    name = CharField(max_length=128)
+    file = FileField(upload_to='records')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = 'id',

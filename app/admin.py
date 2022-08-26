@@ -1,3 +1,9 @@
 from django.contrib import admin
+from django.contrib.admin import ModelAdmin
 
-# Register your models here.
+from app.models import UploadedSong
+
+
+@admin.register(UploadedSong)
+class UploadedSongAdmin(ModelAdmin):
+    pass
