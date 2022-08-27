@@ -6,7 +6,7 @@ httplib2
 sentry-sdk
 librosa
 matplotlib
-numpy
+numpy=1.22
 pillow
 scipy
 ffmpeg
