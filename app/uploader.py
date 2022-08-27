@@ -88,7 +88,7 @@ class CustomInstalledAppFlow(InstalledAppFlow):
 class Uploader:
     def __init__(self):
         self.flow = CustomInstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-        self.auth_url, self.wsgi_app, self.local_server = self.flow.run_local_server(port=8082)
+        self.auth_url, self.wsgi_app, self.local_server = self.flow.run_local_server(host='google-auth-server.lomic.cz', port=8005)
         self.youtube = None
 
     def handle_async_auth(self):
