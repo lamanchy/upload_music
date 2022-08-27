@@ -8,6 +8,7 @@ lock = threading.Lock()
 
 
 def do_upload_song(song, uploader):
+    uploader.handle_async_auth()
     with lock:
         video_maker = VideoMaker(song)
         video_path = video_maker.create_video()
@@ -20,3 +21,5 @@ def upload_song(song: UploadedSong):
     t = threading.Thread(target=do_upload_song, args=(song, uploader))
     t.setDaemon(True)
     t.start()
+
+    return uploader.auth_url

@@ -1,11 +1,13 @@
 import http.client
 import random
 import time
+import wsgiref.simple_server
+import wsgiref.util
 from os.path import join
 
 import httplib2
 from django.conf import settings
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google_auth_oauthlib.flow import InstalledAppFlow, _RedirectWSGIApp, _WSGIRequestHandler
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
@@ -48,10 +50,49 @@ API_VERSION = 'v3'
 VALID_PRIVACY_STATUSES = ('public', 'private', 'unlisted')
 
 
+class CustomInstalledAppFlow(InstalledAppFlow):
+    def run_local_server(self, host="localhost", port=8080,
+                         authorization_prompt_message=InstalledAppFlow._DEFAULT_AUTH_PROMPT_MESSAGE,
+                         success_message=InstalledAppFlow._DEFAULT_WEB_SUCCESS_MESSAGE,
+                         open_browser=True,
+                         redirect_uri_trailing_slash=True, **kwargs):
+        wsgi_app = _RedirectWSGIApp(success_message)
+        # Fail fast if the address is occupied
+        wsgiref.simple_server.WSGIServer.allow_reuse_address = False
+        local_server = wsgiref.simple_server.make_server(
+            host, port, wsgi_app, handler_class=_WSGIRequestHandler
+        )
+
+        redirect_uri_format = (
+            "http://{}:{}/" if redirect_uri_trailing_slash else "http://{}:{}"
+        )
+        self.redirect_uri = redirect_uri_format.format(host, local_server.server_port)
+        auth_url, _ = self.authorization_url(**kwargs)
+
+        return auth_url, wsgi_app, local_server
+
+    def handle_request(self, wsgi_app, local_server):
+        local_server.handle_request()
+
+        # Note: using https here because oauthlib is very picky that
+        # OAuth 2.0 should only occur over https.
+        authorization_response = wsgi_app.last_request_uri.replace("http", "https")
+        self.fetch_token(authorization_response=authorization_response)
+
+        # This closes the socket
+        local_server.server_close()
+
+        return self.credentials
+
+
 class Uploader:
     def __init__(self):
-        flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-        credentials = flow.run_local_server(port=8081)
+        self.flow = CustomInstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
+        self.auth_url, self.wsgi_app, self.local_server = self.flow.run_local_server(port=8082)
+        self.youtube = None
+
+    def handle_async_auth(self):
+        credentials = self.flow.handle_request(self.wsgi_app, self.local_server)
         self.youtube = build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 
     def upload(self, song, video_path):
