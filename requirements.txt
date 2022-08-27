@@ -1,5 +1,8 @@
-simple-youtube-api
+google-api-python-client
+google-auth-oauthlib
+google-auth-httplib2
 django
+httplib2
 sentry-sdk
 librosa
 matplotlib

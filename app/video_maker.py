@@ -111,7 +111,7 @@ class VideoMaker:
             pass
         os.mkdir(images_path)
 
-        name = unidecode(self.song.name)
+        name = unidecode(self.song.name).lower()
 
         for i, (frame, color, volume) in enumerate(zip(chromatogram, colors, self.volumes)):
             w, h = 426, 240

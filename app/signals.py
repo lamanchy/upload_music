@@ -13,11 +13,4 @@ lock = threading.Lock()
 @receiver(post_save, sender=UploadedSong, dispatch_uid='run_daemon')
 def run_daemon(instance: UploadedSong, created, **kwargs):
     if created:
-        if settings.DEBUG:
-            upload_song(instance)
-        else:
-            t = threading.Thread(target=upload_song, args=(instance,))
-            t.setDaemon(True)
-            t.start()
-
-        raise
+        upload_song(instance)
