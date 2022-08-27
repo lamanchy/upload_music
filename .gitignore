@@ -3,3 +3,6 @@ venv
 upload_music/local_settings.py
 records
 db.sqlite3
+client_secrets.json
+images
+video.mp4

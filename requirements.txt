@@ -1,3 +1,10 @@
 simple-youtube-api
 django
 sentry-sdk
+librosa
+matplotlib
+numpy
+pillow
+scipy
+ffmpeg
+Unidecode

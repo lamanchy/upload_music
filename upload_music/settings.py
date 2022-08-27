@@ -126,21 +126,22 @@ SUPERUSER_PASSWORD = None
 STATIC_ROOT = join(BASE_DIR, 'static')
 MEDIA_ROOT = join(BASE_DIR, 'media')
 
-sentry_sdk.init(
-    dsn="https://ab344b61b7774c01a7c02e45e8d93d8b@o380102.ingest.sentry.io/6691932",
-    integrations=[
-        DjangoIntegration(),
-    ],
+if not DEBUG:
+    sentry_sdk.init(
+        dsn="https://ab344b61b7774c01a7c02e45e8d93d8b@o380102.ingest.sentry.io/6691932",
+        integrations=[
+            DjangoIntegration(),
+        ],
 
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # We recommend adjusting this value in production.
-    traces_sample_rate=0.0,
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=0.0,
 
-    # If you wish to associate users to errors (assuming you are using
-    # django.contrib.auth) you may enable sending PII data.
-    send_default_pii=True
-)
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=True
+    )
 
 try:
     from upload_music.local_settings import *
