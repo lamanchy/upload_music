@@ -10,7 +10,9 @@ lock = threading.Lock()
 
 
 def do_upload_song(song, uploader):
+    print('handling async auth')
     uploader.handle_async_auth()
+    print('async auth ok')
     with lock:
         video_maker = VideoMaker(song)
         video_path = video_maker.create_video()
@@ -19,6 +21,7 @@ def do_upload_song(song, uploader):
 
 def upload_song(song: UploadedSong):
     if settings.DEBUG:
+        print('debug creating video')
         video_maker = VideoMaker(song)
         video_maker.create_video()
         raise
@@ -27,5 +30,6 @@ def upload_song(song: UploadedSong):
     t = threading.Thread(target=do_upload_song, args=(song, uploader))
     t.setDaemon(True)
     t.start()
+    print('returning url')
 
     return uploader.auth_url
