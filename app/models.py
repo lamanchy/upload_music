@@ -8,9 +8,9 @@ class UploadedSong(Model):
     file = FileField(upload_to='records')
     created_at = DateField(auto_now=True)
 
-    def clean(self):
-        if not self.file.name.endswith('m4a') and not self.file.name.endswith('mp3'):
-            raise ValidationError('not .mp3 or .m4a')
+    # def clean(self):
+    #     if not self.file.name.endswith('m4a') and not self.file.name.endswith('mp3'):
+    #         raise ValidationError('not .mp3 or .m4a')
 
     def __str__(self):
         return self.title
