@@ -1,8 +1,8 @@
 import colorsys
 import os
 import shutil
+from math import ceil
 from os.path import join
-from random import random, shuffle
 from subprocess import Popen
 
 import librosa.display
@@ -25,16 +25,34 @@ class VideoMaker:
 
     def __init__(self, song: UploadedSong):
         self.song = song
-
-        audio_data, self.sample_rate = librosa.load(self.song.file.path)
+        self.sample_rate = 22050
         self.hop_length = int(self.sample_rate // self.frame_rate)
 
-        y_harmonic, y_percussive = librosa.effects.hpss(audio_data)
-        self.chromatogram = librosa.feature.chroma_cqt(y=y_harmonic, sr=self.sample_rate, hop_length=self.hop_length)
+        offset = 0
+        duration = 30
+        self.chromatogram = np.array([[] for _ in range(12)])
+        volumes = []
 
-        samples_per_frame = len(audio_data) // len(self.chromatogram[0])
-        volumes = [np.max(np.abs(audio_data[i:i + samples_per_frame]))
-                   for i in range(0, len(audio_data), samples_per_frame)]
+        tmp_wav_file = join(settings.BASE_DIR, 'audio.wav')
+        self.ffmpeg('-i', f'{self.song.file.path}',
+                    '-vn',
+                    '-ar', f'{self.sample_rate}',
+                    tmp_wav_file)
+
+        while True:
+            audio_data = librosa.load(tmp_wav_file, offset=offset, duration=duration)[0]
+            if not len(audio_data): break
+
+            y_harmonic, _ = librosa.effects.hpss(audio_data)
+            _chromatogram = librosa.feature.chroma_cqt(y=y_harmonic, hop_length=self.hop_length)
+            self.chromatogram = np.concatenate([self.chromatogram, _chromatogram], axis=1)
+
+            samples_per_frame = int(ceil(len(audio_data) / len(_chromatogram[0])))
+            volumes += [np.max(np.abs(audio_data[i:i + samples_per_frame]))
+                        for i in range(0, len(audio_data), samples_per_frame)]
+
+            offset += duration
+
         volumes = np.array(list(self.average_array(volumes, r=60)))
         max_peak = np.max(volumes)
         self.volumes = volumes / max_peak
@@ -128,14 +146,16 @@ class VideoMaker:
             image.save(join(images_path, f'img{i:09}.png'))
 
         video_path = join(settings.BASE_DIR, 'video.mp4')
-        process = Popen(['ffmpeg',
-                         '-y',
-                         '-r', f'{self.frame_rate}',
-                         '-i', f'{join(images_path, "img%09d.png")}',
-                         '-i', f'{self.song.file.path}',
-                         video_path])
-        process.wait()
+        self.ffmpeg('-r', f'{self.frame_rate}',
+                    '-i', f'{join(images_path, "img%09d.png")}',
+                    '-i', f'{self.song.file.path}',
+                    video_path)
+
         return video_path
+
+    def ffmpeg(self, *args):
+        process = Popen(['ffmpeg', '-y', *args])
+        process.wait()
 
     # coefs = []
     # for c in range(3):

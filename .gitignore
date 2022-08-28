@@ -6,3 +6,4 @@ db.sqlite3*
 client_secrets.json
 images
 video.mp4
+audio.wav

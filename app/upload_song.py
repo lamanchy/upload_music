@@ -1,5 +1,7 @@
 import threading
 
+from django.conf import settings
+
 from app.models import UploadedSong
 from app.uploader import Uploader
 from app.video_maker import VideoMaker
@@ -16,6 +18,10 @@ def do_upload_song(song, uploader):
 
 
 def upload_song(song: UploadedSong):
+    if settings.DEBUG:
+        video_maker = VideoMaker(song)
+        video_maker.create_video()
+        raise
     uploader = Uploader()
 
     t = threading.Thread(target=do_upload_song, args=(song, uploader))
