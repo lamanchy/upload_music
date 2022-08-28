@@ -3,6 +3,7 @@ import os
 import shutil
 from math import ceil
 from os.path import join
+from random import random, shuffle
 from subprocess import Popen
 
 import librosa.display
