@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-e#!fr9mr1asu%5*aixkle!o4b&enq3i4l1i8os-o=wkv3*op62
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = environ.get('DEBUG') != 'False'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', 'upload-music.lomic.cz']
 
 # Application definition
 
