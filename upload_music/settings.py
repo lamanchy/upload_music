@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
+from os import environ
 from os.path import join
 from pathlib import Path
 
@@ -25,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-e#!fr9mr1asu%5*aixkle!o4b&enq3i4l1i8os-o=wkv3*op62'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = environ.get('DEBUG') == 'True'
 
 ALLOWED_HOSTS = []
 
@@ -144,7 +145,3 @@ if not DEBUG:
         send_default_pii=True
     )
 
-try:
-    from upload_music.local_settings import *
-except ImportError:
-    pass
